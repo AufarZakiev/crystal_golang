@@ -3,30 +3,23 @@ package main
 import (
 	"awesomeProject/alg"
 	"awesomeProject/constants"
-	obj_func "awesomeProject/obj_func"
+	"awesomeProject/obj_func"
 	"fmt"
 	"github.com/fogleman/gg"
 	"gonum.org/v1/gonum/diff/fd"
 	"math"
 	"math/rand"
 	"time"
-	"log"
 )
 
-func timeTrack(start time.Time, name string) {
-	elapsed := time.Since(start)
-	log.Printf("%s took %s", name, elapsed)
-}
-
 func main() {
-	N := 400
+	startFull := time.Now()
+	N := 1000
 	xInit := make([]float64, N)
 	rGenerator := rand.New(rand.NewSource(time.Now().UnixNano()))
 	for i := range xInit {
 		xInit[i] = rGenerator.Float64() * 100
 	}
-
-	defer timeTrack(time.Now(), "crystal")
 
 	h := constants.H
 	x := make([]float64, N)
@@ -34,6 +27,7 @@ func main() {
 	copy(x, xInit)
 	FX := obj_func.U(xInit)
 	for h > constants.E {
+		start := time.Now()
 		G := fd.Gradient(nil, obj_func.U, x, nil) // Gradient vector
 		V := alg.Unit_vec(G)                      // Unit gradient vector
 		z = alg.Sub_vec(x, alg.Mult_vec(V, h))
@@ -48,11 +42,14 @@ func main() {
 				break
 			}
 		}
+		elapsed := time.Since(start)
+		fmt.Printf("step took %s\n", elapsed)
 		fmt.Println("h:", h)
 		fmt.Println("FX", FX)
 		fmt.Println("-------")
 	}
-
+	elapsedFull := time.Since(startFull)
+	fmt.Printf("Full took %s\n", elapsedFull)
 	fmt.Println(x) // Print the result
 
 	max := func(s []float64) float64 {
@@ -61,12 +58,12 @@ func main() {
 			if math.Abs(val) > m {
 				m = math.Abs(val)
 			}
-			s[i] = val / 10.0;
+			s[i] = val / 1000.0;
 		}
 		return m
 	}(x) // Find max absolute value for proper render
 
-	dc := gg.NewContext((int)(max*0.22), (int)(max*0.22))
+	dc := gg.NewContext((int)(max*0.0022), (int)(max*0.0022))
 	dc.SetRGB255(255, 255, 255)
 	dc.Clear()
 	for i := 0; i < N/2; i++ {
