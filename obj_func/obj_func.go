@@ -19,11 +19,20 @@ func U(input []float64) float64 { // Wrapper around objective function to fit in
 		summingChan2 := make(chan float64, N)
 		summingChan3 := make(chan float64, 2)
 		summingChan4 := make(chan float64, 2)
+		summingChan5 := make(chan float64, N)
 
 		go func() {
 			var firstSum float64
 			for i := 0; i < N; i++ {
 				firstSum += <-summingChan1
+			}
+			summingChan3 <- firstSum
+		}()
+
+		go func() {
+			var firstSum float64
+			for i := 0; i < N; i++ {
+				firstSum += <-summingChan5
 			}
 			summingChan3 <- firstSum
 		}()
@@ -39,8 +48,13 @@ func U(input []float64) float64 { // Wrapper around objective function to fit in
 		for i := 0; i < N; i++ {
 
 			go func(index int) {
-				partial_sum := constants.A / (math.Sqrt(x[index]*x[index]+y[index]*y[index]) + constants.L1)
-				summingChan1 <- partial_sum
+				partialSum := constants.A / (math.Sqrt((x[index]-constants.POS_X_1)*(x[index]-constants.POS_X_1)+(y[index]-constants.POS_Y_1)*(y[index]-constants.POS_Y_1)) + constants.L1)
+				summingChan1 <- partialSum
+			}(i)
+
+			go func(index int) {
+				partialSum := constants.A / (math.Sqrt((x[index]-constants.POS_X_2)*(x[index]-constants.POS_X_2)+(y[index]-constants.POS_Y_2)*(y[index]-constants.POS_Y_2)) + constants.L1)
+				summingChan5 <- partialSum
 			}(i)
 
 			go func(index int) {
@@ -52,6 +66,6 @@ func U(input []float64) float64 { // Wrapper around objective function to fit in
 			}(i)
 		}
 
-		return <-summingChan4 - <-summingChan3
+		return <-summingChan4 - <-summingChan3 - <-summingChan3
 	}(input[:len(input)/2], input[len(input)/2:]) // return value of objective function
 }
