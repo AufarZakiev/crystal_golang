@@ -6,5 +6,5 @@ const (
 	L1 float64 = 1
 	L2 float64 = 0.00001
 	E  float64 = 0.00001
-	H  float64 = 100000
+	H  float64 = 1000
 )

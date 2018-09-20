@@ -14,7 +14,7 @@ import (
 
 func main() {
 	startFull := time.Now()
-	N := 1000
+	N := 600
 	xInit := make([]float64, N)
 	rGenerator := rand.New(rand.NewSource(time.Now().UnixNano()))
 	for i := range xInit {
@@ -58,12 +58,12 @@ func main() {
 			if math.Abs(val) > m {
 				m = math.Abs(val)
 			}
-			s[i] = val / 1000.0;
+			s[i] = val / 10.0;
 		}
 		return m
 	}(x) // Find max absolute value for proper render
 
-	dc := gg.NewContext((int)(max*0.0022), (int)(max*0.0022))
+	dc := gg.NewContext((int)(max*0.22), (int)(max*0.22))
 	dc.SetRGB255(255, 255, 255)
 	dc.Clear()
 	for i := 0; i < N/2; i++ {
@@ -71,5 +71,5 @@ func main() {
 	}
 	dc.SetRGB255(0, 0, 0)
 	dc.Fill()
-	dc.SavePNG("test.png")
+	dc.SavePNG("100points.png")
 }
