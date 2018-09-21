@@ -14,12 +14,16 @@ import (
 
 func main() {
 	startFull := time.Now()
-	N := 600
+	N := 400
 	xInit := make([]float64, N)
 	rGenerator := rand.New(rand.NewSource(time.Now().UnixNano()))
 	for i := range xInit {
-		xInit[i] = rGenerator.Float64() * 1000
+		xInit[i] = rGenerator.Float64() - 0.5
+
+		xInit[i] *= 1500
 	}
+
+	printDots(xInit, N)
 
 	h := constants.H
 	x := make([]float64, N)
@@ -52,7 +56,11 @@ func main() {
 	fmt.Printf("Full took %s\n", elapsedFull)
 	fmt.Println(x) // Print the result
 
-	max := func(s []float64) float64 {
+	printDots(x, N)
+}
+
+func printDots(x []float64, N int) {
+	k := func(s []float64) float64 {
 		m := math.Abs(s[0])
 		for _, val := range s {
 			if math.Abs(val) > m {
@@ -60,9 +68,9 @@ func main() {
 			}
 		}
 		return m
-	}(x) // Find max absolute value for proper render
-
-	k := 1500 / max;
+	}(x)
+	// Find max absolute value for proper render
+	k = 750 / k
 	dc := gg.NewContext(1500, 1500)
 	dc.SetRGB255(255, 255, 255)
 	dc.Clear()
@@ -70,9 +78,9 @@ func main() {
 		dc.DrawPoint(x[i]*k+float64(dc.Width()/2), x[i+N/2]*k+float64(dc.Width()/2), (float64)(dc.Width()/200.0))
 	}
 	dc.SetRGB255(255, 0, 0)
-	dc.DrawPoint(constants.POS_X_1+float64(dc.Width()/2), constants.POS_Y_1+float64(dc.Width()/2), (float64)(dc.Width()/100.0))
-	dc.DrawPoint(constants.POS_X_2+float64(dc.Width()/2), constants.POS_Y_2+float64(dc.Width()/2), (float64)(dc.Width()/100.0))
+	dc.DrawPoint(constants.POS_X_1*k+float64(dc.Width()/2), constants.POS_Y_1*k+float64(dc.Width()/2), float64(dc.Width()/100.0))
+	dc.DrawPoint(constants.POS_X_2*k+float64(dc.Width()/2), constants.POS_Y_2*k+float64(dc.Width()/2), float64(dc.Width()/100.0))
 	dc.SetRGB255(0, 0, 0)
 	dc.Fill()
-	dc.SavePNG("300points_250_250_750_750.png")
+	dc.SavePNG("200points_1000.png")
 }
